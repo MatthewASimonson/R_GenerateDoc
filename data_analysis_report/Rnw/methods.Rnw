@@ -1,0 +1,27 @@
+%==============================================================================
+% File: 	methods.Rnw
+% Author: Peter DeWitt, peter.dewitt@ucdenver.edu
+% Date:
+% 
+% Purpose:	
+%
+% Change log:
+% 
+%==============================================================================
+
+\section{Methods \label{sec:methods}}
+
+Data was created and modified to be used only for example purposes.  
+
+Data analysis was done in 
+\Sexpr{R.version.string}~\cite{R-base}.  Survival analysis
+was done using the {\tt survival} pacakge~\cite{R-survival} with the default
+Efron method for tie handling in the Cox proportional hazard models.  Graphics
+were produced via the {\tt ggplot2} package~\cite{R-ggplot2}.
+
+
+
+%=============%
+% end of file %
+%=============%
+

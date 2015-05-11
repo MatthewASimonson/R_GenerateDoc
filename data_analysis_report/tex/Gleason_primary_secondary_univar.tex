@@ -1,0 +1,15 @@
+% latex.default(out, file = "../tex/Gleason_primary_secondary_univar.tex",      title = "", ctable = TRUE, caption = cap, label = "tab:Gleason_primary_secondary_univar",      cgroup = c("OS", "PCSS"), n.cgroup = c(4, 4), colhead = rep(c("HR",          "LCL", "UCL", "p-value"), 2), col.just = rep("r", ncol(out))) 
+%
+\ctable[caption={Hazard ratios for the different primary-secondary delineations of
+             the Gleason Score 7.  Results in this table are from 
+             Cox Proportional Hazard models.  Reported
+             results are the hazard ratios (HR), lower and upper confidence
+             bounds for  95 \%
+             confidence intervals and p-values are the result from log-rank
+             tests for the models.},label=tab:Gleason_primary_secondary_univar,pos=!tbp,]{lrrrrcrrrr}{}{\FL
+\multicolumn{1}{l}{\bfseries }&\multicolumn{4}{c}{\bfseries OS}&\multicolumn{1}{c}{\bfseries }&\multicolumn{4}{c}{\bfseries PCSS}\NN
+\cline{2-5} \cline{7-10}
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{HR}&\multicolumn{1}{c}{LCL}&\multicolumn{1}{c}{UCL}&\multicolumn{1}{c}{p-value}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{HR}&\multicolumn{1}{c}{LCL}&\multicolumn{1}{c}{UCL}&\multicolumn{1}{c}{p-value}\ML
+GS 7 (3+4)&Reference&&&&&&&&\NN
+GS 7 (4+3)&1.00&0.91&1.11&0.996&&1.00&0.91&1.11&0.996\LL
+}

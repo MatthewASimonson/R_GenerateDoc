@@ -1,0 +1,104 @@
+%==============================================================================
+% File: 	RCLreports2.sty
+% Author: Peter DeWitt, peter.dewitt@ucdenver.edu
+% Date:   March 2012
+% 
+% Purpose:	Preamble/style file for LaTeX reports
+%
+% Change log:
+% 15 August 2012 - added the floatrow package options for shading in floats
+% 
+% 24 April 2013 - added the verbatim package and ctable package
+% 
+%==============================================================================
+
+\RequirePackage{graphicx}
+\RequirePackage{lastpage}
+\RequirePackage{mdwlist} % used for enumerate* and itemize*
+\RequirePackage[normalem]{ulem} % for sout
+\RequirePackage{color, colortbl}
+\RequirePackage[margin = 10pt, font=small, labelfont={bf}, justification=justified]{caption}%, format = hang]{caption}
+\RequirePackage{floatrow}
+\RequirePackage{xcolor}
+
+\definecolor{mygrey}{rgb}{0.95,0.95,0.95}
+\DeclareColorBox{mycolorbox}{\fcolorbox{white}{mygrey}}
+\floatsetup[table]{framestyle=colorbox,colorframeset=mycolorbox,framefit=yes,heightadjust=all,framearound=all,capposition=TOP}
+%\floatsetup[figure]{style=boxed,framearound=all}
+\floatsetup[figure]{framestyle=colorbox,colorframeset=mycolorbox,framefit=yes,heightadjust=all,framearound=all,capposition=TOP}
+
+\floatsetup[table]{capposition=TOP}
+
+\RequirePackage{rotating}
+\RequirePackage{array}
+\RequirePackage{multirow}
+\RequirePackage{longtable}
+\RequirePackage{amsmath}
+\RequirePackage{todonotes}
+\RequirePackage{subcaption}
+\RequirePackage{lscape}
+\RequirePackage{multicol}
+\RequirePackage{verbatim}
+\RequirePackage{ctable}
+
+%\RequirePackage{ifplatform}
+%\ifwindows 
+%  \RequirePackage[ansinew]{inputenc} % use when compiling on Winblows
+%\else
+%  \RequirePackage[utf8]{inputenc}    % use when compiling on Linux
+%\fi
+\RequirePackage[utf8]{inputenc}
+
+% Use if you want to have no indent and a vertical space between paragraphs
+%\setlength{\parindent}{0.0in}
+%\setlength{\parskip}{0.1in}
+
+% Hyperlinks in the pdf are wonderful, use them and make them look good too.
+% Modify the link colors for the hyper links within the document
+\RequirePackage{hyperref}
+\definecolor{link}{rgb}{0,0,1.0}
+\hypersetup{
+  colorlinks, %
+  citecolor = link,%
+  filecolor = link,%
+  linkcolor = link,%
+  urlcolor  = link
+}
+
+% Headers and pagestyle
+\RequirePackage{fancyhdr}
+
+%\setlength{\textwidth}{6.25in} 
+\setlength{\textwidth}{6.75in} 
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\topmargin}{-0.25in}
+\setlength{\textheight}{8.75in}
+
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\footrulewidth}{1pt}
+
+% Title, subtitle, author and abstract
+
+\newcommand{\rcltitle}[1]{
+  \begin{center}
+    {\huge \raggedright #1 \par}
+  \end{center}
+}
+\newcommand{\rclsubtitle}[1]{\noindent \textbf{#1} \vspace{0.1in} }
+
+%\newcommand{\rclauthor}[2]{\noindent \textit{#1} \vspace{0.05in}
+%\par \noindent \begin{minipage}{0.98\linewidth} \small #2 \end{minipage} \vspace{0.1in} }
+\newcommand{\rclauthor}[2]{\noindent #1 \vspace{0.05in}
+\par \noindent \begin{minipage}{0.98\linewidth} \small #2 \end{minipage} \vspace{0.1in} }
+ 
+\newcommand{\rclabstract}[1]{
+  \begin{center}
+    \begin{minipage}{0.90\linewidth}
+      \textbf{Abstract: } #1 
+    \end{minipage}
+  \end{center}}
+
+
+
+

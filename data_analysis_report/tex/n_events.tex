@@ -1,0 +1,14 @@
+% latex.default(frmt(tab, digits = 0), file = "../tex/n_events.tex",      title = "", caption = "Number of records and number of events for OS and PCSS\n              by Gleason score and primary/secondary patterns.",      label = "tab:n_evnets", ctable = TRUE, cgroup = c("OS", "PCSS"),      n.cgroup = c(2, 2), rowgroup = gsub("Gleason=", "", rownames(tab)),      col.just = rep("r", ncol(tab))) 
+%
+\ctable[caption={Number of records and number of events for OS and PCSS
+              by Gleason score and primary/secondary patterns.},label=tab:n_evnets,pos=!tbp,]{lrrcrr}{}{\FL
+\multicolumn{1}{l}{\bfseries }&\multicolumn{2}{c}{\bfseries OS}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries PCSS}\NN
+\cline{2-3} \cline{5-6}
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{records}&\multicolumn{1}{c}{events}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{records}&\multicolumn{1}{c}{events}\ML
+Gleason=GS 7&12,986&1,611&&12,986&1,611\NN
+Gleason7=GS 7 (3+4)&7,905&980&&7,905&980\NN
+Gleason7=GS 7 (4+3)&5,081&631&&5,081&631\NN
+Gleason=GS 8&3,670&598&&3,670&598\NN
+Gleason=GS 9&2,139&473&&2,139&473\NN
+Gleason=GS 10&244&73&&244&73\LL
+}

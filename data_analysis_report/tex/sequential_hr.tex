@@ -1,0 +1,23 @@
+% latex.default(tab, file = "../tex/sequential_hr.tex", title = "",      ctable = TRUE, caption = "Hazard ratios for sequential pairs of Gleason scores.\n              The confidence intervals and p-values have been adjusted for\n              multiple comparisons via a Bonferroni correction. These results\n              use the coefficient estimates from the multivariable Cox PH\n              regression models.",      label = "tab:sequential_hr", cgroup = c("OS", "PCSS"), n.cgroup = c(4,          4), colhead = rep(c("HR", "LCL", "UCL", "pvalue"), 2),      rgroup = rep("", 4), n.rgroup = rep(2, 4), col.just = rep("r",          ncol(tab))) 
+%
+\ctable[caption={Hazard ratios for sequential pairs of Gleason scores.
+              The confidence intervals and p-values have been adjusted for
+              multiple comparisons via a Bonferroni correction. These results
+              use the coefficient estimates from the multivariable Cox PH
+              regression models.},label=tab:sequential_hr,pos=!tbp,]{lrrrrcrrrr}{}{\FL
+\multicolumn{1}{l}{\bfseries }&\multicolumn{4}{c}{\bfseries OS}&\multicolumn{1}{c}{\bfseries }&\multicolumn{4}{c}{\bfseries PCSS}\NN
+\cline{2-5} \cline{7-10}
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{HR}&\multicolumn{1}{c}{LCL}&\multicolumn{1}{c}{UCL}&\multicolumn{1}{c}{pvalue}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{HR}&\multicolumn{1}{c}{LCL}&\multicolumn{1}{c}{UCL}&\multicolumn{1}{c}{pvalue}\ML
+{\bfseries }&&&&&&&&&\NN
+~~Gleason 7 (3+4)&Reference&&&&&Reference&&&\NN
+~~Gleason 7 (4+3)&0.99&0.86&1.16&1.000&&0.99&0.86&1.16&1.000\ML
+{\bfseries }&&&&&&&&&\NN
+~~Gleason 7 (4+3)&Reference&&&&&Reference&&&\NN
+~~Gleason 8&1.23&1.04&1.46&0.001&&1.23&1.04&1.46&0.001\ML
+{\bfseries }&&&&&&&&&\NN
+~~Gleason 8&Reference&&&&&Reference&&&\NN
+~~Gleason 9&1.40&1.17&1.68&\textless 0.001&&1.40&1.17&1.68&\textless 0.001\ML
+{\bfseries }&&&&&&&&&\NN
+~~Gleason 9&Reference&&&&&Reference&&&\NN
+~~Gleason 10&1.44&0.99&2.08&0.016&&1.44&0.99&2.08&0.016\LL
+}

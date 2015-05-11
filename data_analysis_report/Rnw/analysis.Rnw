@@ -1,0 +1,557 @@
+%==============================================================================
+% File: 	analysis.Rnw 
+% Author: Peter DeWitt, peter.dewitt@ucdenver.edu 
+% Date:   Nov 2013
+% 
+% Purpose:	analysis of the external beam radiation project : example project
+% for showing the use of R, LaTeX, and knitr
+%
+% Change log:
+% 13 Nov 2013 - file created
+% 
+%==============================================================================
+
+<<"setup">>=
+# Create a file to hold all the tables in for compile with htlatex 
+cat("\\documentclass{article}
+\\usepackage{ctable}
+\\usepackage{longtable}
+\\begin{document}", 
+file = "../html/tables.tex",
+append = FALSE)
+@
+
+\section{Analysis and Results \label{sec:analysis}}
+
+\subsection{Data Set Description}
+%{{{
+
+The data contained information on the following variables and
+the levels for each.  There is additional information in the data set on the
+Gleason scores.  For patients with a Gleason score of 7, the primary-secondary
+values of `3+4' and `4+3' are available.  The following analysis uses a Gleason Score
+variable with the total score used in all cases save GS 7 which is reported with
+primary-secondary delineations.  Table~\ref{tab:data_summary} on
+page~\pageref{tab:data_summary} report the observed data set overall and by
+Gleason score.  There is a total of 
+\Sexpr{frmt(nrow(prostate), digits = 0)}
+data records avaiable for analysis.
+
+<<"demographics">>=
+names(prostate)
+
+tab <- table(prostate$Gleason7)
+ptab <- prop.table(tab)*100
+clhd <- c(t(matrix(c(frmt(as.numeric(tab), digit = 0), 
+                     frmt(as.numeric(ptab), digits = 1)), 
+                   ncol = 2)))
+
+demographics <- tableone(c("Era", "Age", "T.Stage", "PSA"), 
+                         "Gleason7", 
+                         margin = 1, 
+                         prostate)
+demographics$tab.frmt
+
+temp <- print(demographics, 
+              colhead = c(rep(c("n", "\\%"), nlevels(prostate$Gleason7) + 1), 
+                          ""), 
+              extracolheads = c(frmt(nrow(prostate), digits = 0), 
+                                "100", clhd, ""), 
+              caption = "Observed data overall and by Gleason Score.  Reported
+              values are counts and row percentages, i.e., the sum of the
+              reported percentages over each row should sum to 100\\%.",
+              label   = "tab:data_summary",
+              file    = "../tex/data_summary.tex")
+
+cat("\n \\input{../tex/data_summary.tex}",
+    file = "../html/tables.tex",
+    append = TRUE)
+@
+
+
+%}}}
+
+\subsection{Seven Year Survival}
+%{{{
+
+Table~\ref{tab:gleason_km_surv_est} reports the Kaplan-Meier estimates for
+survival at \Sexpr{max(prostate$OS.Time)} months, the maximum follow up time observed, for each Gleason score.  
+The estimated survival by primary-secondary patterns for 
+Gleason scores 7 is also reported.  
+
+<<"km_estimates">>=
+# KM Estimates
+os.tab0 <- summary(survfit(Surv(OS.Time, OS.Status) ~ 1, prostate), time = 83)
+os.tab0 <- data.frame(strata   = "ALL", 
+                      survival = os.tab0$surv, 
+                      lower    = os.tab0$lower, 
+                      upper    = os.tab0$upper)
+
+os.tab1 <- 
+  summary(survfit(Surv(OS.Time, OS.Status) ~ Gleason, prostate), time = 83)
+os.tab1 <- data.frame(strata   = os.tab1$strata, 
+                      survival = os.tab1$surv, 
+                      lower    = os.tab1$lower, 
+                      upper    = os.tab1$upper)
+
+os.tab2 <- 
+  summary(survfit(Surv(OS.Time, OS.Status) ~ Gleason7, prostate), time = 83)
+os.tab2 <- data.frame(strata   = os.tab2$strata, 
+                      survival = os.tab2$surv, 
+                      lower    = os.tab2$lower, 
+                      upper    = os.tab2$upper)
+
+os.tab <- rbind(os.tab0, os.tab1[1, ], os.tab2[1:2, ], os.tab1[2:4, ])
+
+os.tab <- os.tab[, -1]
+os.tab <- sapply(os.tab, function(x) {paste0(frmt(x * 100, 1), "\\%")})
+rownames(os.tab) <- c("Whole Sample", 
+                      "Gleason 7", "Gleason 7 (3+4)", "Gleason 7 (4+3)",
+                      "Gleason 8", "Gleason 9", "Gleason 10")
+
+pcss.tab0 <- summary(survfit(Surv(PCSS.Time, PCSS.Status) ~ 1, prostate), time = 83)
+pcss.tab0 <- data.frame(strata   = "ALL", 
+                      survival = pcss.tab0$surv, 
+                      lower    = pcss.tab0$lower, 
+                      upper    = pcss.tab0$upper)
+
+pcss.tab1 <- 
+  summary(survfit(Surv(PCSS.Time, PCSS.Status) ~ Gleason, prostate), time = 83)
+pcss.tab1 <- data.frame(strata   = pcss.tab1$strata, 
+                      survival = pcss.tab1$surv, 
+                      lower    = pcss.tab1$lower, 
+                      upper    = pcss.tab1$upper)
+
+pcss.tab2 <- 
+  summary(survfit(Surv(PCSS.Time, PCSS.Status) ~ Gleason7, prostate), time = 83)
+pcss.tab2 <- data.frame(strata   = pcss.tab2$strata, 
+                      survival = pcss.tab2$surv, 
+                      lower    = pcss.tab2$lower, 
+                      upper    = pcss.tab2$upper)
+
+pcss.tab <- rbind(pcss.tab0, pcss.tab1[1, ], pcss.tab2[1:2, ], pcss.tab1[2:4, ])
+
+pcss.tab <- pcss.tab[, -1]
+pcss.tab <- sapply(pcss.tab, function(x) {paste0(frmt(x * 100, 1), "\\%")})
+rownames(pcss.tab) <- c("Whole Sample", 
+                      "Gleason 7", "Gleason 7 (3+4)", "Gleason 7 (4+3)",
+                      "Gleason 8", "Gleason 9", "Gleason 10")
+
+seven.year.km <- cbind(os.tab, pcss.tab)
+@
+
+<<"gleason_km_surv_est">>=
+temp <- latex(seven.year.km, 
+              file = "../tex/gleason_km_surv_est.tex",
+              title = "",
+              ctable = TRUE,
+              caption = "Kaplan-Meier estimated survival at seven years by
+              Gleason Score.  Reported values are the estimated survival and the
+              95\\% confidence intervals for the estimated survival.",
+              label = "tab:gleason_km_surv_est",
+              cgroup = c("OS", "PCSS"), 
+              n.cgroup = c(3, 3), 
+              # rgroup = c("", paste("Gleason", 7:10)), 
+              # n.rgroup = c(1, 3, 1, 1, 1),
+              col.just = rep("r", ncol(seven.year.km)))
+
+cat("\n \\input{../tex/gleason_km_surv_est.tex}",
+    file = "../html/tables.tex",
+    append = TRUE) 
+@
+
+%}}}
+
+\subsection{Primary-Secondary Levels or Sums?}
+%{{{
+In this section of the analysis we investigate if there is any difference in the
+OS or PCSS between the primary-secondary levels by Gleason score.
+Results of six separate Cox PH regression models, one to compare the
+relative difference in the hazard for OS and PCSS between the two levels of
+delineation in each Gleason 7, 8, or 9 score,  are reported in
+Table~\ref{tab:Gleason_primary_secondary_univar}.    These results indicate
+there is no statistically significant differences in the hazards between the
+different delineations for Gleason 8 and 9 for either OS or PCSS.  There is a
+statistically significant difference in the hazard between GS 7 (4+3) and GS 7
+(3+4).
+
+Figure~\ref{fig:OS_PCSS_GS} are the Kaplan-Meier survival curves for overall and
+prostate cancer survival for each Gleason score.
+Figure~\ref{fig:primary_secondary_km} show the Kaplan-Meier plots for the
+primary/secondary patterns within Gleason 7, 8, and 9.  Table~\ref{tab:n_evnets}
+report the number of patients at risk overall and the number of deaths observed
+for each Gleason score.
+
+<<"Gleason_primary_secondary_univar">>=
+#{{{
+survdiff(formula = Surv(OS.Time, OS.Status) ~ Gleason7, 
+         data    = droplevels(subset(prostate, Gleason == "GS 7")))
+
+fit7.os <- coxph(formula = Surv(OS.Time, OS.Status) ~ Gleason7, 
+                 data    = droplevels(subset(prostate, Gleason == "GS 7")))
+summary(fit7.os)
+
+fit7.pcss <- coxph(formula = Surv(PCSS.Time, PCSS.Status) ~ Gleason7, 
+                   data    = droplevels(subset(prostate, Gleason == "GS 7")))
+summary(fit7.pcss)
+
+foo <- function(fit) { 
+  matrix(c(frmt(as.numeric(exp(coef(fit)))), 
+          frmt(as.numeric(exp(confint(fit)))), 
+          frmtp(pchisq(fit$score, df = length(coef(fit)), lower.tail = FALSE))),
+         ncol = 4)
+}
+foo(fit7.pcss)
+
+out <- matrix("", nrow = 2, ncol = 8)
+rownames(out) <- c(fit7.os$xlevels$Gleason7)
+  
+fit <- coxph(Surv(PCSS.Time, PCSS.Status) ~ Era + Age + T.Stage, 
+             data = prostate)
+summary(fit)
+
+
+out[2, ] <- as.matrix(rbind(cbind(foo(fit7.os), foo(fit7.pcss))))
+out[1, 1] <- "Reference"
+
+gleason.primary.secondary.univar <- out
+
+cap <- paste("Hazard ratios for the different primary-secondary delineations of
+             the Gleason Score 7.  Results in this table are from 
+             Cox Proportional Hazard models.  Reported
+             results are the hazard ratios (HR), lower and upper confidence
+             bounds for ", (1 - getOption("qwraps.alpha", 0.05))*100, "\\%
+             confidence intervals and p-values are the result from log-rank
+             tests for the models.")
+
+temp <- latex(out,
+              file = "../tex/Gleason_primary_secondary_univar.tex",
+              title = "", 
+              ctable = TRUE,
+              caption = cap,
+              label = "tab:Gleason_primary_secondary_univar",
+              cgroup = c("OS", "PCSS"),
+              n.cgroup = c(4, 4), 
+              colhead = rep(c("HR", "LCL", "UCL", "p-value"), 2), 
+              # rgroup = c("Gleason 7"),
+              # n.rgroup = rep(2, 1),
+              col.just = rep("r", ncol(out))) 
+cat("\n \\input{../tex/Gleason_primary_secondary_univar.tex}",
+    file = "../html/tables.tex",
+    append = TRUE)
+#}}}
+@
+
+\begin{figure}
+  \begin{subfigure}[t]{0.48\textwidth} 
+<<"OS_GS">>=
+fit.os.gs <- survfit(Surv(OS.Time, OS.Status) ~ Gleason, prostate)
+qsurvplot(fit.os.gs) + ylim(c(0.50, 1.00)) + 
+guides(col = guide_legend(ncol = 3)) 
+@
+    \caption{(OS\_GS.pdf) KM plot for OS by Gleason Score.}
+    \label{fig:OS_GS}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[t]{0.48\textwidth} 
+<<"PCSS_GS">>=
+fit.pcss.gs <- survfit(Surv(PCSS.Time, PCSS.Status) ~ Gleason, prostate)
+qsurvplot(fit.pcss.gs) + ylim(c(0.50, 1.00)) + 
+guides(col = guide_legend(ncol = 3)) 
+@
+    \caption{(PCSS\_GS.pdf) KM plot for PCSS by Gleason Score.}
+    \label{fig:PCSS_GS}
+  \end{subfigure}
+  \caption{KM plots for OS and PCSS by Gleason Score.}
+  \label{fig:OS_PCSS_GS}
+\end{figure}
+
+% KM plots
+%{{{
+<<>>=
+fit7.os.km <- survfit(formula = Surv(OS.Time, OS.Status) ~ Gleason7, 
+                   data    = droplevels(subset(prostate, Gleason == "GS 7")))
+
+fit7.pcss.km <- survfit(formula = Surv(PCSS.Time, PCSS.Status) ~ Gleason7, 
+                     data    = droplevels(subset(prostate, Gleason == "GS 7"))) 
+@
+
+
+\begin{figure}
+  \begin{subfigure}[t]{0.48\textwidth}
+<<"OS_Gleason7">>=
+qsurvplot(fit7.os.km) + ylim(c(0.5, 1))
+@
+    \caption{(OS\_Gleason7.pdf) KM plot for OS by primary-secondary patterns
+    within the \Sexpr{frmt(sum(fit7.os.km$n), digits = 0)} patients with a
+    Gleason score of 7.}
+    \label{fig:primary_secondary_km_7os}
+  \end{subfigure}
+  ~ 
+  \begin{subfigure}[t]{0.48\textwidth}
+<<"PCSS_Gleason7">>=
+qsurvplot(fit7.pcss.km) + ylim(c(0.5, 1))
+@
+    \caption{(PCSS\_Gleason7.pdf) KM plot for PCSS by primary-secondary patterns
+    within the
+    \Sexpr{frmt(sum(fit7.pcss.km$n), digits = 0)} patients with a Gleason score
+    of 7.}
+    \label{fig:primary_secondary_km_7pcss}
+  \end{subfigure}
+  \caption{KM plots for OS and PCSS by primary-secondary patterns for Gleason 7,
+  See Table~\ref{tab:Gleason_primary_secondary_univar} for
+  the log-rank test p-values.}
+  \label{fig:primary_secondary_km}
+\end{figure}
+%}}}
+
+<<"n_and_events">>=
+tab <- cbind(rbind(summary(fit.os.gs)$table[, c(1, 4)], 
+                   summary(fit7.os.km)$table[, c(1, 4)]), 
+             rbind(summary(fit.pcss.gs)$table[, c(1, 4)], 
+                   summary(fit7.pcss.km)$table[, c(1, 4)]))
+tab <- tab[c(1, 5, 6, 2, 3, 4), ]
+
+temp <- latex(frmt(tab, digits = 0), 
+              file = "../tex/n_events.tex",
+              title = "", 
+              caption = "Number of records and number of events for OS and PCSS
+              by Gleason score and primary/secondary patterns.",
+              label = "tab:n_evnets", 
+              ctable = TRUE,
+              cgroup = c("OS", "PCSS"),
+              n.cgroup = c(2, 2), 
+              # rgroup = paste("Gleason", 7:10),
+              # n.rgroup = c(3, 1, 1, 1), 
+              rowgroup = gsub("Gleason=", "", rownames(tab)),
+              col.just = rep("r", ncol(tab)))
+
+cat("\n \\input{../tex/n_events.tex}",
+    file = "../html/tables.tex",
+    append = TRUE) 
+@
+
+%}}}
+
+\subsubsection{Should the primary/secondary patterns be used in a multivariable
+model?}  
+%{{{
+
+<<"os_coxph_analysis">>=
+fit <- coxph(Surv(OS.Time, OS.Status) ~ Era + Age + T.Stage + PSA + Gleason7,
+             data = prostate)
+
+summary(fit)
+
+test <- cox.zph(fit)
+# plot(test)
+
+rgrp <- names(fit$xlevels)
+nrgrp <- sapply(fit$xlevels, length)
+rwnm <- do.call(c, fit$xlevels)
+
+out <- matrix("", ncol = 4, nrow = sum(nrgrp))
+rownames(out) <- paste0(rep(rgrp, times = nrgrp), rwnm)
+out[rownames(out) %in% names(coef(fit)), 1]   <- frmt(exp(coef(fit)))
+out[!(rownames(out) %in% names(coef(fit))), 1]   <- "Reference"
+out[rownames(out) %in% names(coef(fit)), 2:3] <- frmt(exp(confint(fit)))
+out[rownames(out) %in% names(coef(fit)), 4]   <- 
+  frmtp(pnorm(-abs(coef(fit) / sqrt(diag(vcov(fit))))) * 2)
+rownames(out) <- rwnm
+
+temp <- lapply(c("Era", "Age", "T.Stage", "PSA", "Gleason7"), 
+       function(x) { 
+         fit <- coxph(as.formula(paste("Surv(OS.Time, OS.Status) ~", x)),
+                      data = prostate)
+         rgrp <- names(fit$xlevels)
+         nrgrp <- sapply(fit$xlevels, length)
+         rwnm <- do.call(c, fit$xlevels)
+         out <- matrix("", ncol = 4, nrow = sum(nrgrp))
+         rownames(out) <- paste0(rep(rgrp, times = nrgrp), rwnm)
+         out[rownames(out) %in% names(coef(fit)), 1]   <- frmt(exp(coef(fit)))
+         out[!(rownames(out) %in% names(coef(fit))), 1]   <- "Reference"
+         out[rownames(out) %in% names(coef(fit)), 2:3] <- frmt(exp(confint(fit)))
+         out[rownames(out) %in% names(coef(fit)), 4]   <- 
+           frmtp(pnorm(-abs(coef(fit) / sqrt(diag(vcov(fit))))) * 2)
+         rownames(out) <- rwnm
+         return(out)
+       })
+temp <- do.call(rbind, temp)
+out <- cbind(temp, out)
+fit.os <- fit
+out.os <- out 
+@
+
+<<"pcss_coxph_analysis">>=
+fit <- coxph(Surv(PCSS.Time, PCSS.Status) ~ Era + Age + T.Stage + PSA + Gleason7,
+             data = prostate)
+
+fit <- update(fit, formula = . ~ . - Gleason789 + Gleason7)
+summary(fit)
+anova(fit)
+car::Anova(fit)
+
+test <- cox.zph(fit)
+# plot(test)
+
+rgrp <- names(fit$xlevels)
+nrgrp <- sapply(fit$xlevels, length)
+rwnm <- do.call(c, fit$xlevels)
+
+out <- matrix("", ncol = 4, nrow = sum(nrgrp))
+rownames(out) <- paste0(rep(rgrp, times = nrgrp), rwnm)
+out[rownames(out) %in% names(coef(fit)), 1]   <- frmt(exp(coef(fit)))
+out[!(rownames(out) %in% names(coef(fit))), 1]   <- "Reference"
+out[rownames(out) %in% names(coef(fit)), 2:3] <- frmt(exp(confint(fit)))
+out[rownames(out) %in% names(coef(fit)), 4]   <- 
+  frmtp(pnorm(-abs(coef(fit) / sqrt(diag(vcov(fit))))) * 2)
+rownames(out) <- rwnm
+
+temp <- lapply(c("Era", "Age", "T.Stage", "PSA", "Gleason7"), 
+       function(x) { 
+         fit <- coxph(as.formula(paste("Surv(PCSS.Time, PCSS.Status) ~", x)),
+                      data = prostate)
+         rgrp <- names(fit$xlevels)
+         nrgrp <- sapply(fit$xlevels, length)
+         rwnm <- do.call(c, fit$xlevels)
+         out <- matrix("", ncol = 4, nrow = sum(nrgrp))
+         rownames(out) <- paste0(rep(rgrp, times = nrgrp), rwnm)
+         out[rownames(out) %in% names(coef(fit)), 1]   <- frmt(exp(coef(fit)))
+         out[!(rownames(out) %in% names(coef(fit))), 1]   <- "Reference"
+         out[rownames(out) %in% names(coef(fit)), 2:3] <- frmt(exp(confint(fit)))
+         out[rownames(out) %in% names(coef(fit)), 4]   <- 
+           frmtp(pnorm(-abs(coef(fit) / sqrt(diag(vcov(fit))))) * 2)
+         rownames(out) <- rwnm
+         return(out)
+       })
+temp <- do.call(rbind, temp)
+out <- cbind(temp, out)
+
+fit.pcss <- fit
+out.pcss <- out
+@
+
+<<"os_pcss_coxph_results_table">>=
+temp <- cbind(out.os, out.pcss)
+temp <- latex(temp, file = "../tex/os_pcss_coxph.tex",
+              title = "", ctable = TRUE, 
+              size = "tiny", 
+              caption = "Hazard ratios (HR) along with 95\\% confidence
+              intervals (LCL, UCL) and p-values for testing if the hazard ratio
+              is statistically different from 1 are presented in this table for
+              both univariable and multivariable regression models of both
+              overall survival and prostate cancer specific survival.",
+              label = "tab:os_pcss_coxph",
+              cgroup = c("OS (univar)", 
+                         "OS (multivar)", 
+                         "PCSS (univar)",
+                         "PCSS (multivar)"), 
+              n.crgoup = rep(4, 4), 
+              colhead = rep(c("HR", "LCL", "UCL", "p-value"), 4), 
+              rgroup = rgrp,
+              n.rgroup = nrgrp,
+              rowname = rwnm,
+              col.just = rep("r", ncol(temp)))
+
+cat("\n \\input{../tex/os_pcss_coxph.tex}",
+    file = "../html/tables.tex",
+    append = TRUE)
+@
+
+% in the appendix now
+% \input{tex/os_pcss_coxph}
+
+The results of the Cox proportional hazard regression models for overall
+survival and prostate cancer specific survival are presented in
+Table~\ref{tab:os_pcss_coxph} on page~\pageref{tab:os_pcss_coxph}.  Both
+univariable and multivariable regression models are presented.  The univariable
+models are built with only the noted predictor variable whereas the
+multivariable models use the era, age, PSA, T Stage, and Gleason score jointly
+as predictors for survival.
+
+<<>>=
+strings <- params(fit.os, fun = exp)$strings
+@
+
+For overall survival we find that the patients diagnosed in Era 2
+have better outcomes, i.e., longer survival, than those diagnosed
+in the earlier Era 1.  For example, the hazard ratio between Era 2 and Era 1 for
+overall survival based on the multivariable cox regression model is
+\Sexpr{strings[1]}.
+
+No statistically signficant difference in overall surverival was observed
+between Gleason 7 (4+3) and Gleason 7 (3+4), HR = \Sexpr{strings[8]}.  
+
+Testing for a difference in the hazard ratio between sequential Gleason scores
+is reported in Table~\ref{tab:sequential_hr}.  Considering that the data is
+fictitious and the methods for deliniating 3+4 and 4+3 was a coin flip, it's not
+surprsing that the hazard ratio between these two levels is not statistically
+different from 1.  In general, and as expected for prostate cancer patients, as
+the Gleason score increases the hazard increases as well.
+
+<<"sequential_gs_tests">>=
+coef(fit.os)
+K <- rbind(c(0, 0, 0, 0, 0, 0, 0,  1,  0,  0,  0),  # (4+3) v (3+4)
+           c(0, 0, 0, 0, 0, 0, 0, -1,  1,  0,  0),  #  8 v (4+3)
+           c(0, 0, 0, 0, 0, 0, 0,  0, -1,  1,  0),  #  9 v 8
+           c(0, 0, 0, 0, 0, 0, 0,  0,  0, -1,  1))  # 10 v 9
+
+glht(fit.os, mcp(Gleason7 = "Tukey"))
+
+glht.os   <- glht(fit.os, linfct = K)
+glht.pcss <- glht(fit.pcss, linfct = K)
+
+confint(glht.os)
+confint(glht.os, level = 1 - 0.05/5)
+confint(glht.pcss, level = 1 - 0.05/5)
+
+out <- cbind(frmt(exp(confint(glht.os, level = 1 - 0.05/4)$confint)), 
+             pvalue = frmtp(summary(glht.os, test = adjusted("bonferroni"))$test$pvalue), 
+             frmt(exp(confint(glht.pcss, level = 1 - 0.05/4)$confint)), 
+             pvalue = frmtp(summary(glht.pcss, test = adjusted("bonferroni"))$test$pvalue))
+
+tab <- matrix("", nrow = nrow(out) * 2, ncol = ncol(out))
+tab[c(1, 3, 5, 7), c(1, 5)] <- "Reference"
+tab[c(2, 4, 6, 8), ] <- out
+rownames(tab) <- c("Gleason 7 (3+4)", 
+                   rep("Gleason 7 (4+3)", 2), 
+                   rep("Gleason 8", 2), 
+                   rep("Gleason 9", 2),
+                   "Gleason 10")
+temp <- latex(tab,
+              file = "../tex/sequential_hr.tex",
+              title = "", 
+              ctable = TRUE,
+              caption = "Hazard ratios for sequential pairs of Gleason scores.
+              The confidence intervals and p-values have been adjusted for
+              multiple comparisons via a Bonferroni correction. These results
+              use the coefficient estimates from the multivariable Cox PH
+              regression models.", 
+              label = "tab:sequential_hr", 
+              cgroup = c("OS", "PCSS"), 
+              n.cgroup = c(4, 4),
+              colhead = rep(c("HR", "LCL", "UCL", "pvalue"), 2), 
+              rgroup = rep("", 4), 
+              n.rgroup = rep(2, 4), 
+              col.just = rep("r", ncol(tab)))
+cat("\n \\input{../tex/sequential_hr.tex}",
+    file = "../html/tables.tex",
+    append = TRUE)
+
+@
+
+
+%}}}
+
+
+
+<<"cleanup">>=
+# finish the tables.tex file
+cat("\n \\end{document}", 
+    file = "../html/tables.tex", 
+    append = TRUE)
+@
+%=============%
+% end of file %
+%=============%
+

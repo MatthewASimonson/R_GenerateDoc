@@ -1,0 +1,16 @@
+% latex.default(seven.year.km, file = "../tex/gleason_km_surv_est.tex",      title = "", ctable = TRUE, caption = "Kaplan-Meier estimated survival at seven years by\n              Gleason Score.  Reported values are the estimated survival and the\n              95\\% confidence intervals for the estimated survival.",      label = "tab:gleason_km_surv_est", cgroup = c("OS", "PCSS"),      n.cgroup = c(3, 3), col.just = rep("r", ncol(seven.year.km))) 
+%
+\ctable[caption={Kaplan-Meier estimated survival at seven years by
+              Gleason Score.  Reported values are the estimated survival and the
+              95\% confidence intervals for the estimated survival.},label=tab:gleason_km_surv_est,pos=!tbp,]{lrrrcrrr}{}{\FL
+\multicolumn{1}{l}{\bfseries }&\multicolumn{3}{c}{\bfseries OS}&\multicolumn{1}{c}{\bfseries }&\multicolumn{3}{c}{\bfseries PCSS}\NN
+\cline{2-4} \cline{6-8}
+\multicolumn{1}{l}{}&\multicolumn{1}{c}{survival}&\multicolumn{1}{c}{lower}&\multicolumn{1}{c}{upper}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{survival}&\multicolumn{1}{c}{lower}&\multicolumn{1}{c}{upper}\ML
+Whole Sample&76.9\%&75.8\%&78.0\%&&76.9\%&75.8\%&78.0\%\NN
+Gleason 7&79.8\%&78.6\%&81.1\%&&79.8\%&78.6\%&81.1\%\NN
+Gleason 7 (3+4)&80.1\%&78.5\%&81.6\%&&80.1\%&78.5\%&81.6\%\NN
+Gleason 7 (4+3)&79.3\%&77.3\%&81.5\%&&79.3\%&77.3\%&81.5\%\NN
+Gleason 8&73.9\%&71.4\%&76.4\%&&73.9\%&71.4\%&76.4\%\NN
+Gleason 9&65.9\%&62.3\%&69.8\%&&65.9\%&62.3\%&69.8\%\NN
+Gleason 10&63.4\%&56.4\%&71.4\%&&63.4\%&56.4\%&71.4\%\LL
+}
